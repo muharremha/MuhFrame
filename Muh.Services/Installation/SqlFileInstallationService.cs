@@ -130,8 +130,8 @@ namespace Muh.Services.Installation
             string defaultUserPassword, bool installSampleData = true)
         {
             ExecuteSqlFile(_webHelper.MapPath("~/App_Data/Install/create_required_data.sql"));
-            InstallLocaleResources();
-            UpdateDefaultCustomer(defaultUserEmail, defaultUserPassword);
+           // InstallLocaleResources();
+          //  UpdateDefaultCustomer(defaultUserEmail, defaultUserPassword);
            // UpdateDefaultStoreUrl();
 
             if (installSampleData)

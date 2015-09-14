@@ -259,83 +259,80 @@ namespace Muh.Core
         /// <returns>Store host location</returns>
         public virtual string GetStoreHost(bool useSsl)
         {
-            //TODO: Nop_kadırıldı.
-            return "den";
-            //var result = "";
-            //var httpHost = ServerVariables("HTTP_HOST");
-            //if (!String.IsNullOrEmpty(httpHost))
-            //{
-            //    result = "http://" + httpHost;
-            //    if (!result.EndsWith("/"))
-            //        result += "/";
-            //}
+            var result = "";
+            var httpHost = ServerVariables("HTTP_HOST");
+            if (!String.IsNullOrEmpty(httpHost))
+            {
+                result = "http://" + httpHost;
+                if (!result.EndsWith("/"))
+                    result += "/";
+            }
 
-            //if (DataSettingsHelper.DatabaseIsInstalled())
-            //{
-            //    #region Database is installed
+            if (DataSettingsHelper.DatabaseIsInstalled())
+            {
+                #region Database is installed
+                //TODO:Muh_bakılacak
+                ////let's resolve IWorkContext  here.
+                ////Do not inject it via contructor because it'll cause circular references
+                //var storeContext = EngineContext.Current.Resolve<IStoreContext>();
+                //var currentStore = storeContext.CurrentStore;
+                //if (currentStore == null)
+                //    throw new Exception("Current store cannot be loaded");
 
-            //    //TODO: Nop_kaldırıldı.
-            //    //let's resolve IWorkContext  here.
-            //    //Do not inject it via contructor because it'll cause circular references
-            //    //var storeContext =  EngineContext.Current.Resolve<IStoreContext>();
-            //    //var currentStore = storeContext.CurrentStore;
-            //    //if (currentStore == null)
-            //    //    throw new Exception("Current store cannot be loaded");
+                //if (String.IsNullOrWhiteSpace(httpHost))
+                //{
+                //    //HTTP_HOST variable is not available.
+                //    //This scenario is possible only when HttpContext is not available (for example, running in a schedule task)
+                //    //in this case use URL of a store entity configured in admin area
+                //    result = currentStore.Url;
+                //    if (!result.EndsWith("/"))
+                //        result += "/";
+                //}
 
-            //    if (String.IsNullOrWhiteSpace(httpHost))
-            //    {
-            //        //HTTP_HOST variable is not available.
-            //        //This scenario is possible only when HttpContext is not available (for example, running in a schedule task)
-            //        //in this case use URL of a store entity configured in admin area
-            //        result = currentStore.Url;
-            //        if (!result.EndsWith("/"))
-            //            result += "/";
-            //    }
-
-            //    if (useSsl)
-            //    {
-            //        if (!String.IsNullOrWhiteSpace(currentStore.SecureUrl))
-            //        {
-            //            //Secure URL specified. 
-            //            //So a store owner don't want it to be detected automatically.
-            //            //In this case let's use the specified secure URL
-            //            result = currentStore.SecureUrl;
-            //        }
-            //        else
-            //        {
-            //            //Secure URL is not specified.
-            //            //So a store owner wants it to be detected automatically.
-            //            result = result.Replace("http:/", "https:/");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (currentStore.SslEnabled && !String.IsNullOrWhiteSpace(currentStore.SecureUrl))
-            //        {
-            //            //SSL is enabled in this store and secure URL is specified.
-            //            //So a store owner don't want it to be detected automatically.
-            //            //In this case let's use the specified non-secure URL
-            //            result = currentStore.Url;
-            //        }
-            //    }
-            //    #endregion
-            //}
-            //else
-            //{
-            //    #region Database is not installed
-            //    if (useSsl)
-            //    {
-            //        //Secure URL is not specified.
-            //        //So a store owner wants it to be detected automatically.
-            //        result = result.Replace("http:/", "https:/");
-            //    }
-            //    #endregion
-            //}
+                //if (useSsl)
+                //{
+                //    if (!String.IsNullOrWhiteSpace(currentStore.SecureUrl))
+                //    {
+                //        //Secure URL specified. 
+                //        //So a store owner don't want it to be detected automatically.
+                //        //In this case let's use the specified secure URL
+                //        result = currentStore.SecureUrl;
+                //    }
+                //    else
+                //    {
+                //        //Secure URL is not specified.
+                //        //So a store owner wants it to be detected automatically.
+                //        result = result.Replace("http:/", "https:/");
+                //    }
+                //}
+                //else
+                //{
+                //    if (currentStore.SslEnabled && !String.IsNullOrWhiteSpace(currentStore.SecureUrl))
+                //    {
+                //        //SSL is enabled in this store and secure URL is specified.
+                //        //So a store owner don't want it to be detected automatically.
+                //        //In this case let's use the specified non-secure URL
+                //        result = currentStore.Url;
+                //    }
+                //}
+                #endregion
+            }
+            else
+            {
+                #region Database is not installed
+                if (useSsl)
+                {
+                    //Secure URL is not specified.
+                    //So a store owner wants it to be detected automatically.
+                    result = result.Replace("http:/", "https:/");
+                }
+                #endregion
+            }
 
 
-            //if (!result.EndsWith("/"))
-            //    result += "/";
-            //return result.ToLowerInvariant();
+            if (!result.EndsWith("/"))
+                result += "/";
+            return result.ToLowerInvariant();
         }
 
         /// <summary>

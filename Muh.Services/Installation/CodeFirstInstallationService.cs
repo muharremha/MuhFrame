@@ -16,6 +16,7 @@ using Muh.Services.Configuration;
 using Muh.Services.Customers;
 using Muh.Services.Localization;
 using Muh.Core.Domain.Task;
+using Muh.Data;
 
 namespace Muh.Services.Installation
 {
@@ -29,6 +30,7 @@ namespace Muh.Services.Installation
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
         private readonly IRepository<ScheduleTask> _scheduleTaskRepository;
         private readonly IWebHelper _webHelper;
+        private readonly IDbContext _dbContext;
 
         #endregion
 
@@ -40,7 +42,8 @@ namespace Muh.Services.Installation
             IRepository<CustomerRole> customerRoleRepository,
             IRepository<ActivityLogType> activityLogTypeRepository,
             IWebHelper webHelper,
-            IRepository<ScheduleTask> scheduleTaskRepository)
+            IRepository<ScheduleTask> scheduleTaskRepository,
+             IDbContext dbContext)
         {
             
             this._languageRepository = languageRepository;
@@ -49,6 +52,7 @@ namespace Muh.Services.Installation
             this._activityLogTypeRepository = activityLogTypeRepository;
             this._webHelper = webHelper;
             this._scheduleTaskRepository = scheduleTaskRepository;
+            this._dbContext = dbContext;
         }
 
         #endregion
@@ -527,18 +531,130 @@ namespace Muh.Services.Installation
         {
          
             InstallLanguages();
-            
+
+            InstallCustomersAndUsers(defaultUserEmail, defaultUserPassword);
             InstallLocaleResources();
             InstallActivityLogTypes();
             HashDefaultCustomerPassword(defaultUserEmail, defaultUserPassword);
           
             InstallScheduleTasks();
 
-            if (installSampleData)
-            {
-                
-            }
+            SqlFileInstallationService sqlfileIns = new SqlFileInstallationService(_languageRepository, _customerRepository,
+                _dbContext, _webHelper);
+
+            sqlfileIns.InstallData(defaultUserEmail,defaultUserPassword,false);
+
         }
+
+        protected virtual void InstallCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
+        {
+            var crAdministrators = new CustomerRole
+            {
+                Name = "Administrators",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.Administrators,
+            };
+            var crForumModerators = new CustomerRole
+            {
+                Name = "Forum Moderators",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.ForumModerators,
+            };
+            var crRegistered = new CustomerRole
+            {
+                Name = "Registered",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.Registered,
+            };
+            var crGuests = new CustomerRole
+            {
+                Name = "Guests",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.Guests,
+            };
+            var crVendors = new CustomerRole
+            {
+                Name = "Vendors",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = SystemCustomerRoleNames.Vendors,
+            };
+            var customerRoles = new List<CustomerRole>
+                                {
+                                    crAdministrators,
+                                    crForumModerators,
+                                    crRegistered,
+                                    crGuests,
+                                    crVendors
+                                };
+            _customerRoleRepository.Insert(customerRoles);
+
+            //admin user
+            var adminUser = new Customer
+            {
+                CustomerGuid = Guid.NewGuid(),
+                Email = defaultUserEmail,
+                Username = defaultUserEmail,
+                Password = defaultUserPassword,
+                PasswordFormat = PasswordFormat.Clear,
+                PasswordSalt = "",
+                Active = true,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+            var defaultAdminUserAddress = new Address
+            {
+                Name = "Muharremm haliloðlu",
+                Address1 = "beykoz",
+                Address2 = ""
+                
+            };
+            adminUser.Addresses.Add(defaultAdminUserAddress);
+            adminUser.CustomerRoles.Add(crAdministrators);
+            adminUser.CustomerRoles.Add(crForumModerators);
+            adminUser.CustomerRoles.Add(crRegistered);
+            _customerRepository.Insert(adminUser);
+            //set default customer name
+            //_genericAttributeService.SaveAttribute(adminUser, SystemCustomerAttributeNames.FirstName, "John");
+            //_genericAttributeService.SaveAttribute(adminUser, SystemCustomerAttributeNames.LastName, "Smith");
+
+
+            //search engine (crawler) built-in user
+            var searchEngineUser = new Customer
+            {
+                Email = "builtin@search_engine_record.com",
+                CustomerGuid = Guid.NewGuid(),
+                PasswordFormat = PasswordFormat.Clear,
+                Active = true,
+                IsSystemAccount = true,
+                SystemName = SystemCustomerNames.SearchEngine,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+            searchEngineUser.CustomerRoles.Add(crGuests);
+            _customerRepository.Insert(searchEngineUser);
+
+
+            //built-in user for background tasks
+            var backgroundTaskUser = new Customer
+            {
+                Email = "builtin@background-task-record.com",
+                CustomerGuid = Guid.NewGuid(),
+                PasswordFormat = PasswordFormat.Clear,
+                Active = true,
+                IsSystemAccount = true,
+                SystemName = SystemCustomerNames.BackgroundTask,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+            backgroundTaskUser.CustomerRoles.Add(crGuests);
+            _customerRepository.Insert(backgroundTaskUser);
+        }
+
 
         #endregion
     }
