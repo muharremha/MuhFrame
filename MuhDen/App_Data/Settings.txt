@@ -1,2 +1,0 @@
-DataProvider: sqlserver
-DataConnectionString: Data Source=MUHARREM;Initial Catalog=denemecust;Integrated Security=True;Persist Security Info=False
