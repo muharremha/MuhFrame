@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muh.Services", "Muh.Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muh.Web.Framework", "Muh.Web.Framework\Muh.Web.Framework.csproj", "{7BAD2B52-5437-40C4-9A03-6FAE589F4778}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{AFA277B6-BD27-4E53-A66D-A4C989188D6A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

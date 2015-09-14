@@ -71,7 +71,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="UserAgentStringLibrary, Version=1.0.1211.25, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\UserAgentStringLibrary.dll</HintPath>
+      <HintPath>..\Muh.Web.Framework\dll\UserAgentStringLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
